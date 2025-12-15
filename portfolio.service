@@ -18,7 +18,7 @@ EnvironmentFile=/etc/portfolio/env
 # Starts gunicorn with 3 workers (ability for parallel requests), binds it to localhost (taking the port from env), and runs wsgi's app
 ExecStart=/home/ec2-user/portfolio/.venv/bin/gunicorn \
             --workers 3 \
-            --bind 127.0.0.1:${PORT} \
+            --bind 0.0.0.0:${PORT} \
             wsgi:app
 
 # If gunicorn crashes, restart it after 5 seconds
