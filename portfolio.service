@@ -1,0 +1,29 @@
+[Unit]
+# Description appears in systemctl status
+Description=Portfolio Flask App
+# Do not start the service until networking is up
+After=network-online.target
+# Systemd will try to start networking, but won't fail if it doesn't work
+Wants=network-online.target
+
+[Service]
+# gunicorn runs as ec2-user, not root
+User=ec2-user
+Group=ec2-user
+
+WorkingDirectory=/home/ec2-user/portfolio
+
+EnvironmentFile=/etc/portfolio/env
+
+# Starts gunicorn with 3 workers (ability for parallel requests), binds it to localhost (taking the port from env), and runs wsgi's app
+ExecStart=/home/ec2-user/portfolio/.venv/bin/gunicorn \
+            --workers 3 \
+            --bind 127.0.0.1:${PORT} \
+            wsgi:app
+
+# If gunicorn crashes, restart it after 5 seconds
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

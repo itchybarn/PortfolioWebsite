@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Exit on error
+set -e
+
+echo "---Starting deployment---"
+
+RESTART="${RESTART:-true}"
+APP_DIR="/home/ec2-user/portfolio"
+VENV_DIR="$APP_DIR/.venv"
+
+source "env.sh"
+
+cd "$APP_DIR"
+
+# Updates Git's knowledge of the remote repository
+git fetch origin
+
+# Switch working directory to the dev branch
+git checkout "$BRANCH"
+
+# Pull the latest changes from the dev branch
+git pull origin "$BRANCH"
+
+source "$VENV_DIR/bin/activate"
+
+# Install the dependencies
+pip install -r requirements.txt
+
+# Restart the service
+if [ "$RESTART" = "true" ]; then
+    sudo systemctl restart portfolio.service
+fi
+
+echo "---Deployment complete---"
