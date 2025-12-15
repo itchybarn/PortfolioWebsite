@@ -6,7 +6,7 @@ set -e
 echo "---Starting bootstrap---"
 
 APP_DIR="/home/ec2-user/portfolio"
-REPO_URL="https://github.com/itchybarn/PortfolioWebsite.git"
+REPO_URL="git@github.com:itchybarn/PortfolioWebsite.git"
 
 source "env.sh"
 
