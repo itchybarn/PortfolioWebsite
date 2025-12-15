@@ -3,7 +3,7 @@
 # FILE SHOULD BE SOURCED, NOT EXECUTED.
 
 # Default ENV if not set
-ENV="${ENV:-dev}"
+ENV="${ENV:-prod}"
 ENV_FILE="/etc/portfolio/env"
 
 # Select branch based on ENV
