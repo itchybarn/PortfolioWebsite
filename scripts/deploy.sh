@@ -5,7 +5,7 @@ set -e
 
 echo "---Starting deployment---"
 
-RESTART="${RESTART:-true}"
+RESTART="${RESTART:-false}"
 APP_DIR="/home/ec2-user/portfolio"
 source "env.sh"
 

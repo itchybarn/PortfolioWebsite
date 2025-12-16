@@ -6,7 +6,7 @@ set -e
 echo "---Starting bootstrap---"
 
 APP_DIR="/home/ec2-user/portfolio"
-REPO_URL="https://github.com/itchybarn/PortfolioWebsite.git"
+REPO_URL="git@github.com:itchybarn/PortfolioWebsite.git"
 
 source "env.sh"
 
@@ -14,7 +14,10 @@ source "env.sh"
 echo "---Installing packages---"
 
 sudo yum update -y
-sudo yum install -y git python3 python3-pip
+sudo yum install -y git python3 python3-pip nginx
+
+# ---------------------------------------- INSTALL NGINX ----------------------------------------
+sudo systemctl enable --now nginx
 
 # ---------------------------------------- CLONE REPOSITORY ----------------------------------------
 mkdir -p "$APP_DIR"
@@ -24,7 +27,9 @@ if [ ! -d ".git" ]; then
     echo "---Cloning repository---"
     git clone "$REPO_URL" .
 else
-    echo "Repo already exists"
+    git fetch origin
+    git checkout "$BRANCH"
+    git pull origin "$BRANCH"
 fi
 
 # ---------------------------------------- CREATE VIRTUAL ENVIRONMENT ----------------------------------------
