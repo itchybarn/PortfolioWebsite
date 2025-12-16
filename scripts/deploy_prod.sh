@@ -1,11 +1,8 @@
 #!/bin/bash
 
-source "env.sh"
+set -e
 
 RESTART="${RESTART:-false}"
+SCRIPT_NAME="${SCRIPT_NAME:-deploy.sh}"
 
-if [ "$ENV" == "dev" ]; then
-    ssh dev "cd /home/ec2-user/portfolio/scripts; ENV=dev RESTART=$RESTART ./deploy_prod.sh"
-else
-    ssh prod "cd /home/ec2-user/portfolio/scripts; ENV=prod RESTART=$RESTART ./deploy.sh"
-fi
+ssh dev "ssh prod \"cd /home/ec2-user/portfolio/scripts && ENV=prod RESTART='${RESTART}' ./$SCRIPT_NAME\""
