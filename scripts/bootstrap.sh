@@ -27,7 +27,9 @@ if [ ! -d ".git" ]; then
     echo "---Cloning repository---"
     git clone "$REPO_URL" .
 else
-    echo "Repo already exists"
+    git fetch origin
+    git checkout "$BRANCH"
+    git pull origin "$BRANCH"
 fi
 
 # ---------------------------------------- CREATE VIRTUAL ENVIRONMENT ----------------------------------------
