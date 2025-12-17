@@ -14,7 +14,7 @@ source "env.sh"
 echo "---Installing packages---"
 
 sudo yum update -y
-sudo yum install -y git python3 python3-pip nginx
+sudo yum install -y git python3 python3-pip nginx certbot python3-certbot-nginx
 
 # ---------------------------------------- INSTALL NGINX ----------------------------------------
 sudo systemctl enable --now nginx

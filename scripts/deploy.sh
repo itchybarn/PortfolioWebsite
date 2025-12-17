@@ -32,7 +32,8 @@ fi
 
 # Restart the service
 if [ "$RESTART" = "true" ]; then
-    sudo systemctl restart portfolio.service
+    sudo systemctl reload portfolio.service
+    sudo systemctl reload nginx
 fi
 
 echo "---Deployment complete---"
