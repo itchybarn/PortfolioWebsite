@@ -6,7 +6,7 @@ echo "---Starting setup---"
 
 ./bootstrap.sh
 ./create_env.sh
-./deploy.sh
+RESTART=false./deploy.sh
 sudo ./start_systemd.sh
 sudo ./setup_https.sh
 
