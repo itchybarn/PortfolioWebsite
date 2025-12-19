@@ -4,9 +4,12 @@ set -e
 
 echo "---Starting HTTPS setup---"
 
-sudo certbot --nginx \
+sudo certbot certonly --webroot \
+    -w /var/www/html \
     -d itchybarn.com -d www.itchybarn.com \
-    -d jackwagenheim.com -d www.jackwagenheim.com
+    -d jackwagenheim.com -d www.jackwagenheim.com \
+    --deploy-hook "systemctl reload nginx" \
+    --non-interactive --agree-tos --email itchybarn2@gmail.com --no-eff-email
 
 sudo cp /home/ec2-user/portfolio/nginx/portfolio.conf /etc/nginx/conf.d/portfolio.conf
 
