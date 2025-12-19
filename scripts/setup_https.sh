@@ -4,6 +4,8 @@ set -e
 
 echo "---Starting HTTPS setup---"
 
+sudo mkdir -p /var/www/html/.well-known/acme-challenge
+
 sudo certbot certonly --webroot \
     -w /var/www/html \
     -d itchybarn.com -d www.itchybarn.com \
