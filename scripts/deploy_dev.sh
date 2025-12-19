@@ -3,6 +3,6 @@
 set -e
 
 RESTART="${RESTART:-false}"
-SCRIPT_NAME="${SCRIPT_NAME:-deploy.sh}"
+SCRIPT="${SCRIPTE:-deploy.sh}"
 
-ssh dev "cd /home/ec2-user/portfolio/scripts && ENV=dev RESTART=$RESTART ./$SCRIPT_NAME"
+ssh dev "cd /home/ec2-user/portfolio/scripts && ENV=dev RESTART=$RESTART ./$SCRIPT"
