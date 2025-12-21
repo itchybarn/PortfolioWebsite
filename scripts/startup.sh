@@ -8,6 +8,6 @@ echo "---Starting setup---"
 ./create_env.sh
 sudo ./start_systemd.sh
 RESTART=false ./deploy.sh
-sudo ./setup_https.sh
+./setup_https.sh
 
 echo "---Setup complete---"
