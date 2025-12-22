@@ -5,10 +5,14 @@ set -e
 
 echo "---Starting systemd setup---"
 
-sudo cp /home/ec2-user/portfolio/portfolio.service /etc/systemd/system/portfolio.service
-sudo cp /home/ec2-user/portfolio/nginx/portfolio.conf /etc/nginx/conf.d/portfolio.conf
+source "env.sh"
 
-# Test for syntax errors in the nginx configuration, and then reload the nginx service to apply the changes without downtime.
+sudo cp /home/ec2-user/portfolio/portfolio.service /etc/systemd/system/portfolio.service
+
+# load the bootstrap configuration file to redirect to HTTPS until the site is fully up and running
+
+sudo cp /home/ec2-user/portfolio/nginx/portfolio_bootstrap.conf /etc/nginx/conf.d/portfolio.conf
+sudo systemctl enable --now nginx
 sudo nginx -t
 sudo systemctl reload nginx
 

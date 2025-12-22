@@ -30,9 +30,11 @@ else
     echo "No requirements.txt file found"
 fi
 
+sudo systemctl restart portfolio.service
+
 # Restart the service
 if [ "$RESTART" = "true" ]; then
-    sudo systemctl restart portfolio.service
+    sudo systemctl reload nginx
 fi
 
 echo "---Deployment complete---"
