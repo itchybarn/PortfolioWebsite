@@ -30,6 +30,10 @@ else
     echo "No requirements.txt file found"
 fi
 
+cd "$APP_DIR/frontend"
+npm install
+npm run build
+
 sudo systemctl restart portfolio.service
 
 # Restart the service
