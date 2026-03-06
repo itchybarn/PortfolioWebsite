@@ -5,7 +5,7 @@ set -e
 
 echo "---Starting deployment---"
 
-RESTART="${RESTART:-false}"
+RESTART="${RESTART:-true}"
 APP_DIR="/home/ec2-user/portfolio"
 source "env.sh"
 
@@ -36,7 +36,9 @@ npm run build
 
 sudo systemctl restart portfolio.service
 
-# Restart the service
+sudo cp "$APP_DIR/nginx/"*.conf /etc/nginx/conf.d/
+
+# Restart the service. This should be the default.
 if [ "$RESTART" = "true" ]; then
     sudo systemctl reload nginx
 fi
