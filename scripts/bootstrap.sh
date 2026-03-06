@@ -19,6 +19,9 @@ sudo yum install -y git python3 python3-pip nginx certbot python3-certbot-nginx 
 # ---------------------------------------- INSTALL NGINX ----------------------------------------
 sudo systemctl enable --now nginx
 
+# ---------------------------------------- EC2 PERMISSIONS ----------------------------------------
+chmod 711 /home/ec2-user
+
 # ---------------------------------------- CLONE REPOSITORY ----------------------------------------
 mkdir -p "$APP_DIR"
 cd "$APP_DIR"
