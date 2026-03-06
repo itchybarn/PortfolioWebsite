@@ -22,7 +22,12 @@ npm install
 npm run build
 
 sudo systemctl restart portfolio.service
-sudo cp "$APP_DIR/nginx/"*.conf /etc/nginx/conf.d/
+if [ "$ENV" = "prod" ]; then
+    sudo cp "$APP_DIR/nginx/portfolio.conf" /etc/nginx/conf.d/
+else
+    sudo cp "$APP_DIR/nginx/portfolio_dev.conf" /etc/nginx/conf.d/
+fi
+
 sudo systemctl reload nginx
 
 echo "---Deployment complete---"

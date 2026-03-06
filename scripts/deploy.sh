@@ -17,4 +17,4 @@ git checkout "$BRANCH"
 # Pull the latest changes from the dev branch
 git pull origin "$BRANCH"
 
-APP_DIR="$APP_DIR" "./scripts/deploy_run.sh"
+APP_DIR="$APP_DIR" ENV="$ENV" "./scripts/deploy_run.sh"
