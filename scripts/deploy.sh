@@ -3,9 +3,6 @@
 # Exit on error
 set -e
 
-echo "---Starting deployment---"
-
-RESTART="${RESTART:-true}"
 APP_DIR="/home/ec2-user/portfolio"
 source "env.sh"
 
@@ -20,27 +17,4 @@ git checkout "$BRANCH"
 # Pull the latest changes from the dev branch
 git pull origin "$BRANCH"
 
-source ".venv/bin/activate"
-
-# Install the dependencies
-if [ -f "requirements.txt" ]; then
-    echo "---Installing dependencies---"
-    pip install -r requirements.txt
-else
-    echo "No requirements.txt file found"
-fi
-
-cd "$APP_DIR/frontend"
-npm install
-npm run build
-
-sudo systemctl restart portfolio.service
-
-sudo cp "$APP_DIR/nginx/"*.conf /etc/nginx/conf.d/
-
-# Restart the service. This should be the default.
-if [ "$RESTART" = "true" ]; then
-    sudo systemctl reload nginx
-fi
-
-echo "---Deployment complete---"
+APP_DIR="$APP_DIR" "./scripts/deploy_run.sh"
