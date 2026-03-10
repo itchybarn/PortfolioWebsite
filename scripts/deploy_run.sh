@@ -9,7 +9,6 @@ APP_DIR="${APP_DIR:-/home/ec2-user/portfolio}"
 
 source ".venv/bin/activate"
 
-# Install the dependencies
 if [ -f "requirements.txt" ]; then
     echo "---Installing dependencies---"
     pip install -r requirements.txt
@@ -21,7 +20,10 @@ cd "$APP_DIR/frontend"
 npm install
 npm run build
 
+sudo cp "$APP_DIR/portfolio.service" /etc/systemd/system/portfolio.service
+sudo systemctl daemon-reload # reload all the service files
 sudo systemctl restart portfolio.service
+
 if [ "$ENV" = "prod" ]; then
     sudo cp "$APP_DIR/nginx/portfolio.conf" /etc/nginx/conf.d/
 else
