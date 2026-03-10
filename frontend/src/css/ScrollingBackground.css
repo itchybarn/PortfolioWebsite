@@ -8,10 +8,21 @@
 }
 
 .scrolling-bg {
+    position: relative; /* ensures overlay always matches parent */
     width: 100%;
     height: 100%;
     background-repeat: repeat;
     animation:
         scroll-x var(--speed-x) linear infinite,
         scroll-y var(--speed-y) linear infinite;
+}
+.scrolling-bg::before {
+    background: var(--color);
+    content: "";
+    mix-blend-mode: multiply;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
