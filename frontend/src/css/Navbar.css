@@ -1,0 +1,41 @@
+.navbar {
+    background-color: rgb(25, 27, 54);
+    padding: 0.5rem 1rem; /* rem changes depending on the font size of device. default is 16px. top/bottom left/right */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-logo img {
+    width: auto;
+    height: 2rem;
+    filter: brightness(0) invert(1); /* turns the logo white */
+    padding-right: 0.5rem;
+}
+
+.navbar-logo img:hover {
+    filter: brightness(0) invert(0.8); /* turns the logo white */
+}
+
+.navbar-links {
+    display: flex;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 1rem;
+    color: rgb(200, 200, 200);
+    padding: 0.5rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    color: rgb(255, 255, 255);
+}
+
+.nav-link.active {
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+}

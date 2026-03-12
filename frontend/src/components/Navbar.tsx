@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { logo, type page } from "../modules/pages";
+import "../css/Navbar.css";
 
 interface Props {
   links: { [key: string]: page };
@@ -9,13 +10,17 @@ const Navbar = ({ links }: Props) => {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/">
+        <NavLink to="/">
           <img src={logo} />
-        </Link>
+        </NavLink>
       </div>
       <div className="navbar-links">
         {Object.entries(links).map(([link, info]) => {
-          return <Link to={link}>{info.name}</Link>;
+          return (
+            <NavLink to={link} className="nav-link">
+              {info.name}
+            </NavLink>
+          );
         })}
       </div>
     </nav>

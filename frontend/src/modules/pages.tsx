@@ -2,6 +2,7 @@ import Home from "../pages/Home";
 import Minesweeper from "../pages/Minesweeper";
 import type React from "react";
 import cardImage from "../assets/card-image.svg";
+import Projects from "../pages/Projects";
 
 export const logo = cardImage;
 
@@ -18,6 +19,10 @@ const pages = {
   "/minesweeper": {
     name: "Minesweeper",
     page: Minesweeper,
+  },
+  "/projects": {
+    name: "Projects",
+    page: Projects,
   },
 };
 
