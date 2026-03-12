@@ -1,7 +1,9 @@
+import { Children, type ReactNode } from "react";
 import "../css/ScrollingBackground.css";
 
 interface Props {
   texture: string;
+  children: ReactNode;
   tileSize: number;
   xSpeed?: number;
   ySpeed?: number;
@@ -10,7 +12,8 @@ interface Props {
 
 const ScrollingBackground = ({
   texture,
-  tileSize,
+  children,
+  tileSize = 500,
   xSpeed = 5,
   ySpeed = 5,
   color = "rgba(255, 255, 255, 0)",
@@ -27,7 +30,9 @@ const ScrollingBackground = ({
         ["--speed-x" as string]: `${Math.abs(xSpeed)}s`,
         ["--speed-y" as string]: `${Math.abs(ySpeed)}s`,
       }}
-    />
+    >
+      <div className="scrolling-bg-content">{children}</div>
+    </div>
   );
 };
 

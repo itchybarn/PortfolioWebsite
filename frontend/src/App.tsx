@@ -1,6 +1,8 @@
 import ScrollingBackground from "./components/ScrollingBackground";
 import backgroundTexture from "./assets/checkerboard.svg";
 import Navbar from "./components/Navbar";
+import { Route, Routes } from "react-router-dom";
+import pages from "./modules/pages";
 
 function App() {
   return (
@@ -11,8 +13,14 @@ function App() {
         xSpeed={15}
         ySpeed={-40}
         color="rgb(44, 47, 94)"
-      />
-      <Navbar links={{"/": "Home", "/minesweeper": "Minesweeper"}} />
+      >
+        <Navbar links={pages} />
+        <Routes>
+          {Object.entries(pages).map(([link, info]) => {
+            return <Route path={link} element={<info.page />} />;
+          })}
+        </Routes>
+      </ScrollingBackground>
     </>
   );
 }
