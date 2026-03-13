@@ -52,6 +52,7 @@ The same steps would generally be taken for production, with the exceptions bein
 ### Extra Cool Resources
 
 [Create a React + Flask Project in 2025, by Miguel Grinberg](https://blog.miguelgrinberg.com/post/create-a-react-flask-project-in-2025)
+
 [background-blend-mode Problems, solution by Sparronator](https://github.com/mdn/browser-compat-data/issues/20308)
 
 ### AI Usage
