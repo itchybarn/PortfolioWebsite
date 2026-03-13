@@ -15,6 +15,10 @@ WorkingDirectory=/home/ec2-user/portfolio
 
 EnvironmentFile=/etc/portfolio/env
 
+# kill anything left on port 8000 on startup by using a bash -c '...' wrapper. fuser kills anything on a given port with -k.
+# or true, since we need it to still pass if nothing is running
+ExecStartPre=bash -c 'fuser -k 8000/tcp || true'
+
 # Starts gunicorn with 3 workers (ability for parallel requests), binds it to localhost (taking the port from env), and runs wsgi's app
 ExecStart=/home/ec2-user/portfolio/.venv/bin/gunicorn \
             --workers 3 \
