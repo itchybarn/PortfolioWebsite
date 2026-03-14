@@ -14,12 +14,14 @@ function App() {
         ySpeed={-40}
         color="rgb(44, 47, 94)"
       >
-        <Navbar links={pages} />
-        <Routes>
-          {Object.entries(pages).map(([link, info]) => {
-            return <Route path={link} element={<info.page />} />;
-          })}
-        </Routes>
+        <Navbar links={pages} height="3rem" />
+        <div className="page-content">
+          <Routes>
+            {Object.entries(pages).map(([link, info]) => {
+              return <Route path={link} element={<info.page />} />;
+            })}
+          </Routes>
+        </div>
       </ScrollingBackground>
     </>
   );

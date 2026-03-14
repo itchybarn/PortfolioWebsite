@@ -1,7 +1,5 @@
 const Minesweeper = () => {
-  return (
-    <div>Minesweeper</div>
-  )
-}
+  return <div>Minesweeper will go here. Eventually.</div>;
+};
 
-export default Minesweeper
+export default Minesweeper;
