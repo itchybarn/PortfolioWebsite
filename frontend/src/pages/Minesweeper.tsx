@@ -1,5 +1,7 @@
+import MinesweeperWindow from "../components/windows/Minesweeper/Minesweeper";
+
 const Minesweeper = () => {
-  return <div>Minesweeper will go here. Eventually.</div>;
+  return <MinesweeperWindow />;
 };
 
 export default Minesweeper;
