@@ -55,6 +55,8 @@ The same steps would generally be taken for production, with the exceptions bein
 
 [background-blend-mode Problems, solution by Sparronator](https://github.com/mdn/browser-compat-data/issues/20308)
 
+[Learn React Hooks: useReducer - Simply Explained!](https://www.youtube.com/watch?v=rgp_iCVS8ys)
+
 ### AI Usage
 
 AI was used purely for learning purposes within this project. Although I do use AI for advice, double-checking work, and some guidance, everything in the repo is written by me, including this README.

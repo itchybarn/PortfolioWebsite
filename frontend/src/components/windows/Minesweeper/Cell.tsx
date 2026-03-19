@@ -1,6 +1,6 @@
 import checkerboard from "@src/assets/checkerboard.svg";
 import flagImg from "@src/assets/Minesweeper/flag-fill.svg";
-import CellData, { type CellPosition } from "./CellData";
+import CellData from "./CellData";
 
 interface CellProps {
   cell: CellData;
