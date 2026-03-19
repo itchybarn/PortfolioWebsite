@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import Cell from "./Cell";
-import BoardData from "./BoardData";
+import BoardData, { boardReducer } from "./BoardData";
 import type CellData from "./CellData";
 
 interface GameBoardProps {
@@ -12,15 +12,11 @@ const GameBoard = ({
   size = { x: 10, y: 10 },
   mineChance = 80,
 }: GameBoardProps) => {
-  const [board] = useState(() => new BoardData(size, mineChance));
-  const [gameStarted, setGameStarted] = useState(false);
-
-  const onCellReveal = (cell: CellData) => {
-    if (!gameStarted) {
-      board.placeMines(cell);
-      setGameStarted(true);
-    }
-  };
+  const [board, dispatch] = useReducer(
+    boardReducer,
+    { size, mineChance },
+    createInitialBoard,
+  );
 
   return (
     <div className="game-board">
@@ -32,6 +28,7 @@ const GameBoard = ({
                 <Cell
                   key={`${cell.position.x},${cell.position.y}`}
                   cell={cell}
+                  onLeftClick={() => dispa}
                   onCellReveal={onCellReveal}
                 />
               );
