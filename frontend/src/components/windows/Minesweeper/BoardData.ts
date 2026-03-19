@@ -1,6 +1,5 @@
 import { getNRandomEntries } from "@src/modules/genUtils";
-import CellData, { type CellPosition } from "./CellData";
-import { act } from "react";
+import { type CellData, type CellPosition } from "./CellData";
 
 export interface BoardState {
   cells: CellData[][];
@@ -40,16 +39,20 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
     case "reveal_cell": {
       if (cell.state !== "unopened") return state;
 
-      updateCells(state.cells, x, y, {state: "opened"});
+      state.cells = updateCells(state.cells, x, y, {state: "opened"});
 
+      if (!state.gameStarted) {
+        placeMines(state.cells, cell, state.potentialMines, state.mineChance)
+      }
 
-
-      return {... state}
+      return {...state, cells: state.cells}
     }
     case "flag_cell": {
       if (cell.state === "opened") return state;
 
-      return {...state}
+      state.cells = updateCells(state.cells, x, y, {state: cell.state === `flagged` ? `opened` : `flagged`});
+
+      return {...state, cells: state.cells}
     }
   }
 }
@@ -62,58 +65,49 @@ function updateCells(cells: CellData[][], cx: number, cy: number, updates: Parti
   return newCells
 }
 
+function placeMines(cells: CellData[][], startingCell: CellData, potentialMines: Record<string, boolean>, mineChance: number) {
+  const totalSize = cells.length * cells[0].length
+  const totalMines = totalSize * (mineChance * 0.01)
+  acessSurroundingCells(cells, startingCell, (cell) => {
+    delete potentialMines[`${cell.position.x},${cell.position.y}`]
+  }, true)
+  Object.keys(getNRandomEntries(potentialMines, totalMines)).map((cellPosition) => {
+    const [x,y] = cellPosition.split(`,`).map(Number);
+    placeMine(cells, cells[x][y])
+  })
+}
 
+function placeMine(cells: CellData[][], cell: CellData) {
+  updateCells(cells, cell.position.x, cell.position.y, { isMine: true })
+  countSurroundingCells(cells, cell);
+}
 
-
-
-
-
-
-
-
-  function placeMines(cells: CellData[][], potentialMines: [string], startingCell: CellData) {
-    const totalSize = cells.length * cells[0].length
-    const totalMines = totalSize * 
-    acessSurroundingCells(startingCell, (cell) => {
-      delete potentialMines[`${cell.position.x},${cell.position.y}`]
-    }, true)
-    Object.keys(getNRandomEntries(potentialMines, this.totalSize)).map((cellPosition) => {
-      const [x,y] = cellPosition.split(`,`).map(Number);
-      placeMine(cells[x][y])
-    })
-  }
-
-  function placeMine(cell: CellData) {
-    cell.isMine = true;
-    countSurroundingCells(cell);
-  }
-
-  function acessSurroundingCells(
-    cells: CellData[][],
-    startingCell: CellData,
-    accessFunction: (cell: CellData) => void,
-    shouldHitStarting: boolean = false,
-  ) {
-    for (let x = -1; x <= 1; x++) {
-      let newCellX = startingCell.position.x + x;
-      if (newCellX < 0 || newCellX >= cells.length) {
+function acessSurroundingCells(
+  cells: CellData[][],
+  startingCell: CellData,
+  accessFunction: (cell: CellData) => void,
+  shouldHitStarting: boolean = false,
+) {
+  for (let x = -1; x <= 1; x++) {
+    let newCellX = startingCell.position.x + x;
+    if (newCellX < 0 || newCellX >= cells.length) {
+      continue;
+    }
+    let column = cells[newCellX];
+    for (let y = -1; y <= 1; y++) {
+      let newCellY = startingCell.position.y + y;
+      if (newCellY < 0 || newCellY >= column.length) {
         continue;
       }
-      let column = cells[newCellX];
-      for (let y = -1; y <= 1; y++) {
-        let newCellY = startingCell.position.y + y;
-        if (newCellY < 0 || newCellY >= column.length) {
-          continue;
-        }
-        let newCell = column[newCellY];
-        if (newCell === startingCell && !shouldHitStarting) { continue; }
-        accessFunction(newCell);
-      }
+      let newCell = column[newCellY];
+      if (newCell === startingCell && !shouldHitStarting) { continue; }
+      accessFunction(newCell);
     }
   }
+}
 
-  function countSurroundingCells(cell: CellData) {
-    acessSurroundingCells(cell, (countingCell: CellData) => {
-      countingCell.count += 1;
-    });
-  }
+function countSurroundingCells(cells: CellData[][], cell: CellData) {
+  acessSurroundingCells(cells, cell, (countingCell: CellData) => {
+    countingCell.count += 1;
+  });
+}

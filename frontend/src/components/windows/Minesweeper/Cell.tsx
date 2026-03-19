@@ -1,32 +1,16 @@
 import checkerboard from "@src/assets/checkerboard.svg";
 import flagImg from "@src/assets/Minesweeper/flag-fill.svg";
-import CellData from "./CellData";
+import type { CellData } from "./CellData";
 
 interface CellProps {
   cell: CellData;
-  onCellReveal: (cell: CellData) => void;
+  onLeftClick: (cell: CellData) => void;
+  onRightClick: (cell: CellData) => void;
 }
 
-const Cell = ({ cell, onCellReveal }: CellProps) => {
-  const onLeftClick = () => {
-    if (cell.state === `opened` || cell.state === `flagged`) {
-      return;
-    }
-    cell.state = `opened`;
-    onCellReveal(cell);
-  };
-
-  const onRightClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (cell.state === `opened`) {
-      return;
-    }
-
-    cell.state = cell.state === `flagged` ? `opened` : `flagged`;
-  };
-
+const Cell = ({ cell, onLeftClick, onRightClick }: CellProps) => {
   return (
-    <button className="cell" onClick={onLeftClick} onContextMenu={onRightClick}>
+    <button className="cell" onClick={() => {onLeftClick(cell)}} onContextMenu={() => {onRightClick(cell)}}>
       <img src={cell.state === `flagged` ? flagImg : checkerboard} />
       <span className="cell-text">
         {cell.state === `opened`

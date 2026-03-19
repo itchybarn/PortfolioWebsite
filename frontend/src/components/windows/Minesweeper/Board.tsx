@@ -1,7 +1,7 @@
-import { useReducer, useState } from "react";
+import { useReducer } from "react";
 import Cell from "./Cell";
-import BoardData, { boardReducer } from "./BoardData";
-import type CellData from "./CellData";
+import { boardReducer, createInitialBoard } from "./BoardData";
+import type { CellData } from "./CellData";
 
 interface GameBoardProps {
   size?: { x: number; y: number };
@@ -28,8 +28,8 @@ const GameBoard = ({
                 <Cell
                   key={`${cell.position.x},${cell.position.y}`}
                   cell={cell}
-                  onLeftClick={() => dispa}
-                  onCellReveal={onCellReveal}
+                  onLeftClick={(cell: CellData) => dispatch({ type: "reveal_cell", position: cell.position})}
+                  onRightClick={(cell: CellData) => dispatch({ type: "flag_cell", position: cell.position})}
                 />
               );
             })}
