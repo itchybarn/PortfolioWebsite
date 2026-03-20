@@ -1,9 +1,13 @@
 import GameBoard from "./Board";
 import "@src/css/Minesweeper.css";
 
-const Minesweeper = () => {
+interface Props {
+  className: string;
+}
+
+const Minesweeper = ({ className }: Props) => {
   return (
-    <div>
+    <div className={className}>
       <GameBoard />
     </div>
   );

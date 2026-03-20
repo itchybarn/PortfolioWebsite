@@ -1,0 +1,6 @@
+.minesweeperPage {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.75rem;
+}

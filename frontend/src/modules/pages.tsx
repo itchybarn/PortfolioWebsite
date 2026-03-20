@@ -1,5 +1,5 @@
 import Home from "../pages/Home";
-import Minesweeper from "../pages/Minesweeper";
+import MinesweeperPage from "../pages/MinesweeperPage";
 import type React from "react";
 import cardImage from "../assets/card-image.svg";
 import Projects from "../pages/Projects";
@@ -18,7 +18,7 @@ const pages = {
   },
   "/minesweeper": {
     name: "Minesweeper",
-    page: Minesweeper,
+    page: MinesweeperPage,
   },
   "/projects": {
     name: "Projects",

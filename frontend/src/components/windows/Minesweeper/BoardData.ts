@@ -12,6 +12,10 @@ export type BoardAction =
   | { type: "reveal_cell"; position: CellPosition }
   | { type: "flag_cell"; position: CellPosition }
 
+function deepCopyCells(cells: CellData[][]): CellData[][] {
+  return cells.map(col => col.map(c => ({ ...c })))
+}
+
 export function createInitialBoard({
   size = {x: 10, y: 10},
   mineChance = 15,
@@ -33,42 +37,51 @@ export function createInitialBoard({
 
 export function boardReducer(state: BoardState, a: BoardAction): BoardState {
   const { x, y } = a.position
-  const cell = state.cells[x][y]
 
   switch (a.type) {
     case "reveal_cell": {
-      if (cell.state !== "unopened") return state;
+      if (state.cells[x][y].state !== "unopened") return state;
 
-      state.cells = updateCells(state.cells, x, y, {state: "opened"});
+      const newCells = deepCopyCells(state.cells);
+      const cell = newCells[x][y];
 
       if (!state.gameStarted) {
-        placeMines(state.cells, cell, state.potentialMines, state.mineChance)
+        placeMines(newCells, cell, state.potentialMines, state.mineChance);
       }
 
-      return {...state, cells: state.cells}
+      revealCell(newCells, cell);
+
+      return {...state, cells: newCells, gameStarted: true};
     }
     case "flag_cell": {
-      if (cell.state === "opened") return state;
+      if (state.cells[x][y].state === "opened") return state;
 
-      state.cells = updateCells(state.cells, x, y, {state: cell.state === `flagged` ? `opened` : `flagged`});
+      const newCells = deepCopyCells(state.cells);
+      const cell = newCells[x][y];
 
-      return {...state, cells: state.cells}
+      cell.state = cell.state === `flagged` ? `unopened` : `flagged`;
+
+      return {...state, cells: newCells};
     }
   }
 }
 
-function updateCells(cells: CellData[][], cx: number, cy: number, updates: Partial<CellData>): CellData[][] {
-  const newCells = [...cells]
-  const newColumn = [...newCells[cx]]
-  newColumn[cy] = { ... newColumn[cy], ...updates };
-  newCells[cx] = newColumn;
-  return newCells
+function revealCell(cells: CellData[][], revealedCell: CellData) {
+  if (revealedCell.state !== "unopened") return;
+  revealedCell.state = "opened";
+
+  if (revealedCell.count == 0) {
+    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
+      revealCell(cells, cell)
+    })
+  }
+
 }
 
 function placeMines(cells: CellData[][], startingCell: CellData, potentialMines: Record<string, boolean>, mineChance: number) {
   const totalSize = cells.length * cells[0].length
   const totalMines = totalSize * (mineChance * 0.01)
-  acessSurroundingCells(cells, startingCell, (cell) => {
+  acessSurroundingCells(cells, startingCell, (cell: CellData) => {
     delete potentialMines[`${cell.position.x},${cell.position.y}`]
   }, true)
   Object.keys(getNRandomEntries(potentialMines, totalMines)).map((cellPosition) => {
@@ -78,7 +91,7 @@ function placeMines(cells: CellData[][], startingCell: CellData, potentialMines:
 }
 
 function placeMine(cells: CellData[][], cell: CellData) {
-  updateCells(cells, cell.position.x, cell.position.y, { isMine: true })
+  cell.isMine = true
   countSurroundingCells(cells, cell);
 }
 

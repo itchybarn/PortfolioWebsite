@@ -8,12 +8,10 @@
 .cell-column {
     display: flex;
     flex-direction: column;
-    height: 3rem;
-    background-color: red;
 }
 
 .cell {
-    width: 3rem;
+    width: 2.5rem;
     aspect-ratio: 1 / 1;
     color: black;
     position: relative; /* becomes the reference for any absolute children */

@@ -10,7 +10,7 @@ interface GameBoardProps {
 
 const GameBoard = ({
   size = { x: 10, y: 10 },
-  mineChance = 80,
+  mineChance = 15,
 }: GameBoardProps) => {
   const [board, dispatch] = useReducer(
     boardReducer,
