@@ -24,12 +24,3 @@
     height: 100%;
     object-fit: cover; /* crops rather than stretches the image */
 }
-
-.cell-text {
-    position: absolute;
-    inset: 0; /* short for all sides 0 */
-    color: black;
-    display: flex;
-    justify-content: center; /* handles the main axis */
-    align-items: center; /* handles the cross axis */
-}
