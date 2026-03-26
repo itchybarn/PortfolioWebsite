@@ -1,7 +1,20 @@
-import checkerboard from "@src/assets/checkerboard.svg";
-import flagImg from "@src/assets/Minesweeper/flag-fill.svg";
+import flagImg from "@src/assets/Minesweeper/minesweeper-flag.svg";
+import mineImg from "@src/assets/Minesweeper/minesweeper-mine.svg";
+import unopenedImg from "@src/assets/Minesweeper/minesweeper-block.svg";
 import type { CellData } from "./CellData";
 import type React from "react";
+
+const countImages: Record<string, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("@src/assets/Minesweeper/minesweeper-*.svg", {
+      eager: true,
+      import: "default",
+    }),
+  ).map(([path, url]) => {
+    const num = path.match(/minesweeper-(\d+)\.svg/)?.[1] ?? "";
+    return [num, url as string];
+  }),
+);
 
 interface CellProps {
   cell: CellData;
@@ -21,10 +34,27 @@ const Cell = ({ cell, onLeftClick, onRightClick }: CellProps) => {
         onRightClick(cell);
       }}
     >
-      <img src={cell.state === `flagged` ? flagImg : checkerboard} />
-      <span className="cell-text">
-        {cell.state === `opened` ? cell.count : ""}
-      </span>
+      <div className="cell">
+        {cell.state !== `opened` && (
+          <img src={unopenedImg} alt="Background" className="cell-background" />
+        )}
+        {cell.state === `flagged` ? (
+          <img src={flagImg} alt="Overlay" className="cell-overlay" />
+        ) : (
+          cell.state === `opened` &&
+          (cell.isMine ? (
+            <img src={mineImg} alt="Overlay" className="cell-overlay" />
+          ) : (
+            cell.count !== 0 && (
+              <img
+                src={countImages[cell.count]}
+                alt="Overlay"
+                className="cell-overlay"
+              />
+            )
+          ))
+        )}
+      </div>
     </button>
   );
 };

@@ -70,7 +70,7 @@ function revealCell(cells: CellData[][], revealedCell: CellData) {
   if (revealedCell.state !== "unopened") return;
   revealedCell.state = "opened";
 
-  if (revealedCell.count == 0) {
+  if (revealedCell.count == 0 && !revealedCell.isMine) {
     acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
       revealCell(cells, cell)
     })

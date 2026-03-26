@@ -1,5 +1,4 @@
 .game-board {
-    background-color: rebeccapurple;
     display: flex;
     flex-direction: row;
     width: fit-content;
@@ -11,7 +10,9 @@
 }
 
 .cell {
+    background-color: #bababa;
     width: 2.5rem;
+    height: 100%;
     aspect-ratio: 1 / 1;
     color: black;
     position: relative; /* becomes the reference for any absolute children */
@@ -20,7 +21,16 @@
 }
 
 .cell img {
+    aspect-ratio: 1 / 1;
     width: 100%;
     height: 100%;
     object-fit: cover; /* crops rather than stretches the image */
+}
+
+.cell-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
