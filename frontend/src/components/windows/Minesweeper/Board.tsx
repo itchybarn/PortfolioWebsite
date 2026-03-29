@@ -3,15 +3,15 @@ import Cell from "./Cell";
 import { boardReducer, createInitialBoard } from "./BoardData";
 import type { CellData, EndState } from "./CellData";
 
-interface GameBoardProps {
+interface BoardProps {
   size?: { x: number; y: number };
   mineChance?: number;
 }
 
-const GameBoard = ({
+const Board = ({
   size = { x: 10, y: 10 },
   mineChance = 15,
-}: GameBoardProps) => {
+}: BoardProps) => {
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const [board, dispatch] = useReducer(
@@ -126,4 +126,4 @@ const GameBoard = ({
   );
 };
 
-export default GameBoard;
+export default Board;

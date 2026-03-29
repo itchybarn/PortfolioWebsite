@@ -1,5 +1,5 @@
 import GameBoard from "./Board";
-import "@src/css/Minesweeper.css";
+import "@src/css/windows/MinesweeperGame.css";
 
 interface Props {
   className: string;

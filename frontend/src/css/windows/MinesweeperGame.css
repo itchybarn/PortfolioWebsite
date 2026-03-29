@@ -10,19 +10,20 @@
 }
 
 .cell {
-  background-color: #bababa;
   width: 2.5rem;
-  height: 100%;
-  color: black;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid gray;
+  box-sizing: border-box;
   position: relative; /* becomes the reference for any absolute children */
-  border-radius: 0;
+  background-color: #bababa;
+  color: black;
   cursor: pointer;
 }
 
 .cell-inner {
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;
 }
 
 .cell img {
