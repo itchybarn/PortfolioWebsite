@@ -1,48 +1,53 @@
 .game-board {
-    display: flex;
-    flex-direction: row;
-    width: fit-content;
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
 }
 
 .cell-column {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .cell {
-    background-color: #bababa;
-    width: 2.5rem;
-    height: 100%;
-    aspect-ratio: 1 / 1;
-    color: black;
-    position: relative; /* becomes the reference for any absolute children */
-    border-radius: 0;
-    cursor: pointer;
+  background-color: #bababa;
+  width: 2.5rem;
+  height: 100%;
+  color: black;
+  position: relative; /* becomes the reference for any absolute children */
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.cell-inner {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .cell img {
-    aspect-ratio: 1 / 1;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* crops rather than stretches the image */
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* crops rather than stretches the image */
 }
 
 .cell-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .cell_won {
-    background-color: gold;
+  background-color: gold;
 }
 
 .cell_won.cell_0 {
-    background-color: goldenrod;
+  background-color: goldenrod;
 }
 
 .cell_lost {
-    background-color: rgb(182, 0, 0);
+  background-color: rgb(182, 0, 0);
 }

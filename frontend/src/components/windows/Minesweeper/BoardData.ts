@@ -7,7 +7,7 @@ export interface BoardState {
   mineChance: number;
   potentialMines: Record<string, boolean>;
   endState?: BoardEndState;
-  cellsLeftToReveal: number
+  cellsLeftToReveal: number;
 }
 
 interface BoardEndState {
@@ -44,21 +44,31 @@ export function createInitialBoard({
     }),
   );
 
-  return { cells, gameStarted: false, mineChance, potentialMines, cellsLeftToReveal };
+  return {
+    cells,
+    gameStarted: false,
+    mineChance,
+    potentialMines,
+    cellsLeftToReveal,
+  };
 }
 
-export function boardReducer(prevState: BoardState, a: BoardAction): BoardState {
+export function boardReducer(
+  prevState: BoardState,
+  a: BoardAction,
+): BoardState {
   const { x, y } = a.position;
 
   const createNewState = (): [BoardState, CellData] => {
     const state: BoardState = {
       ...prevState,
       cells: deepCopyCells(prevState.cells),
-    }
+      potentialMines: { ...prevState.potentialMines },
+    };
     const cell = state.cells[x][y];
 
-    return [state, cell]
-  }
+    return [state, cell];
+  };
 
   switch (a.type) {
     case "reveal_cell": {
@@ -77,13 +87,13 @@ export function boardReducer(prevState: BoardState, a: BoardAction): BoardState 
         state.endState = {
           endState: `won`,
           finalCell: cell.position,
-        }
+        };
       }
 
       return state;
     }
     case "flag_cell": {
-      if (prevState.endState) return prevState
+      if (prevState.endState) return prevState;
       if (prevState.cells[x][y].state === "opened") return prevState;
 
       const [state, cell] = createNewState();
@@ -93,7 +103,7 @@ export function boardReducer(prevState: BoardState, a: BoardAction): BoardState 
       return state;
     }
     case "set_end_state": {
-      const [state, cell] = createNewState();
+      const cell = { ...prevState.cells[x][y] };
 
       switch (a.endState) {
         case "lost": {
@@ -111,7 +121,13 @@ export function boardReducer(prevState: BoardState, a: BoardAction): BoardState 
         }
       }
 
-      return state;
+      const newColumn = [...prevState.cells[x]];
+      newColumn[y] = cell;
+
+      const newCells = [...prevState.cells];
+      newCells[x] = newColumn;
+
+      return { ...prevState, cells: newCells };
     }
   }
 }
@@ -121,13 +137,13 @@ function revealCell(
   revealedCell: CellData,
   first: boolean = false,
 ) {
-  if (revealedCell.state == "flagged") return;
+  if (revealedCell.state === "flagged") return;
 
   const revealSurroundingCells = () => {
-    acessSurroundingCells(state, revealedCell, (cell: CellData) => {
-      revealCell(state, cell)
+    accessSurroundingCells(state, revealedCell, (cell: CellData) => {
+      revealCell(state, cell);
     });
-  }
+  };
 
   // for clicking already open tiles
   if (revealedCell.state === "opened") {
@@ -138,23 +154,22 @@ function revealCell(
   }
 
   revealedCell.state = "opened";
-  state.cellsLeftToReveal--;
-  if (revealedCell.isMine)
+  if (revealedCell.isMine) {
     state.endState = { finalCell: revealedCell.position, endState: `lost` };
+  } else {
+    state.cellsLeftToReveal--;
+  }
 
   // for recursive zero tiles
-  if (revealedCell.count == 0 && !revealedCell.isMine) {
+  if (revealedCell.count === 0 && !revealedCell.isMine) {
     revealSurroundingCells();
   }
 }
 
-function placeMines(
-  state: BoardState,
-  startingCell: CellData,
-) {
+function placeMines(state: BoardState, startingCell: CellData) {
   const totalSize = state.cells.length * state.cells[0].length;
   const totalMines = totalSize * (state.mineChance * 0.01);
-  acessSurroundingCells(
+  accessSurroundingCells(
     state,
     startingCell,
     (cell: CellData) => {
@@ -176,7 +191,7 @@ function placeMine(state: BoardState, cell: CellData) {
   countSurroundingCells(state, cell);
 }
 
-function acessSurroundingCells(
+function accessSurroundingCells(
   state: BoardState,
   startingCell: CellData,
   accessFunction: (cell: CellData) => void,
@@ -208,7 +223,7 @@ function acessSurroundingCells(
 }
 
 function countSurroundingCells(state: BoardState, cell: CellData) {
-  acessSurroundingCells(state, cell, (countingCell: CellData) => {
+  accessSurroundingCells(state, cell, (countingCell: CellData) => {
     countingCell.count += 1;
   });
 }

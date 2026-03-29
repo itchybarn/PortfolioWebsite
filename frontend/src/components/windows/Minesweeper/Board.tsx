@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import Cell from "./Cell";
 import { boardReducer, createInitialBoard } from "./BoardData";
 import type { CellData, EndState } from "./CellData";
@@ -12,6 +12,8 @@ const GameBoard = ({
   size = { x: 10, y: 10 },
   mineChance = 15,
 }: GameBoardProps) => {
+  const timeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
+
   const [board, dispatch] = useReducer(
     boardReducer,
     { size, mineChance },
@@ -31,14 +33,16 @@ const GameBoard = ({
         if (visited.has(key)) continue;
         visited.add(key);
 
-        setTimeout(() => {
-          dispatch({
-            type: "set_end_state",
-            position: cell.position,
-            endState: endState,
-          });
-        }, delay);
-        
+        timeouts.current.push(
+          setTimeout(() => {
+            dispatch({
+              type: "set_end_state",
+              position: cell.position,
+              endState: endState,
+            });
+          }, delay),
+        );
+
         switch (endState) {
           case "won": {
             delay += 5;
@@ -77,14 +81,24 @@ const GameBoard = ({
     }
   };
 
+  const animationStarted = useRef(false);
+
   useEffect(() => {
-    if (board.endState) {
+    if (board.endState && !animationStarted.current) {
+      animationStarted.current = true;
       triggerEndingAnimation(
         board.cells[board.endState.finalCell.x][board.endState.finalCell.y],
         board.endState.endState,
       );
     }
   }, [board.endState]);
+
+  useEffect(() => {
+    return () => {
+      // runs only on unmount
+      timeouts.current.forEach(clearTimeout);
+    };
+  }, []);
 
   return (
     <div className="game-board">
