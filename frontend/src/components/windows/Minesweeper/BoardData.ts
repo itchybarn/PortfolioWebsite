@@ -1,5 +1,5 @@
 import { getNRandomEntries } from "@src/modules/genUtils";
-import { type CellData, type CellPosition } from "./CellData";
+import { type CellData, type CellPosition, type EndState } from "./CellData";
 
 export interface BoardState {
   cells: CellData[][];
@@ -10,14 +10,14 @@ export interface BoardState {
 
 export type BoardAction =
   | { type: "reveal_cell"; position: CellPosition }
-  | { type: "flag_cell"; position: CellPosition }
+  | { type: "flag_cell"; position: CellPosition };
 
 function deepCopyCells(cells: CellData[][]): CellData[][] {
-  return cells.map(col => col.map(c => ({ ...c })))
+  return cells.map((col) => col.map((c) => ({ ...c })));
 }
 
 export function createInitialBoard({
-  size = {x: 10, y: 10},
+  size = { x: 10, y: 10 },
   mineChance = 15,
 }): BoardState {
   const potentialMines: Record<string, boolean> = {};
@@ -25,23 +25,22 @@ export function createInitialBoard({
     Array.from({ length: size.y }, (_, y): CellData => {
       potentialMines[`${x},${y}`] = true;
       return {
-        position: {x, y},
+        position: { x, y },
         count: 0,
         isMine: false,
-        state: "unopened"
+        state: "unopened",
+        endState: `neutral`
       };
     }),
   );
-  return {cells, gameStarted: false, mineChance, potentialMines}
+  return { cells, gameStarted: false, mineChance, potentialMines };
 }
 
 export function boardReducer(state: BoardState, a: BoardAction): BoardState {
-  const { x, y } = a.position
+  const { x, y } = a.position;
 
   switch (a.type) {
     case "reveal_cell": {
-      if (state.cells[x][y].state !== "unopened") return state;
-
       const newCells = deepCopyCells(state.cells);
       const cell = newCells[x][y];
 
@@ -49,9 +48,9 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
         placeMines(newCells, cell, state.potentialMines, state.mineChance);
       }
 
-      revealCell(newCells, cell);
+      revealCell(newCells, cell, true);
 
-      return {...state, cells: newCells, gameStarted: true};
+      return { ...state, cells: newCells, gameStarted: true };
     }
     case "flag_cell": {
       if (state.cells[x][y].state === "opened") return state;
@@ -61,37 +60,84 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 
       cell.state = cell.state === `flagged` ? `unopened` : `flagged`;
 
-      return {...state, cells: newCells};
+      return { ...state, cells: newCells };
     }
   }
 }
 
-function revealCell(cells: CellData[][], revealedCell: CellData) {
-  if (revealedCell.state !== "unopened") return;
+function revealCell(
+  cells: CellData[][],
+  revealedCell: CellData,
+  first: Boolean = false,
+) {
+  if (revealedCell.state !== "unopened") {
+    if (revealedCell.state === "flagged" || !first) return;
+    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
+      revealCell(cells, cell);
+    });
+  }
   revealedCell.state = "opened";
 
   if (revealedCell.count == 0 && !revealedCell.isMine) {
     acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
-      revealCell(cells, cell)
-    })
+      revealCell(cells, cell);
+    });
   }
 
+  if (revealedCell.isMine) {
+    endGame(cells, revealedCell, `lost`, (newCell: CellData) => {
+      newCell.state = `opened`
+    })
+  }
 }
 
-function placeMines(cells: CellData[][], startingCell: CellData, potentialMines: Record<string, boolean>, mineChance: number) {
-  const totalSize = cells.length * cells[0].length
-  const totalMines = totalSize * (mineChance * 0.01)
-  acessSurroundingCells(cells, startingCell, (cell: CellData) => {
-    delete potentialMines[`${cell.position.x},${cell.position.y}`]
-  }, true)
-  Object.keys(getNRandomEntries(potentialMines, totalMines)).map((cellPosition) => {
-    const [x,y] = cellPosition.split(`,`).map(Number);
-    placeMine(cells, cells[x][y])
-  })
+function endGame(cells: CellData[][], finalCell: CellData, endState: EndState, effect: (newCell: CellData) => void, delay: number = 100) {
+  const endEffect = (cell: CellData) => {
+    console.log(`IM RUNNING!!! ${cell.position.x} ${cell.position.y}`)
+    if (cell.endState !== `neutral`) return;
+    cell.endState = endState;
+    setTimeout(() => {
+      acessSurroundingCells(
+        cells,
+        cell,
+        (newCell: CellData) => {
+          effect(newCell)
+          endEffect(newCell);
+        },
+        false,
+        true,
+      );
+    }, delay);
+  };
+  endEffect(finalCell);
+}
+
+function placeMines(
+  cells: CellData[][],
+  startingCell: CellData,
+  potentialMines: Record<string, boolean>,
+  mineChance: number,
+) {
+  const totalSize = cells.length * cells[0].length;
+  const totalMines = totalSize * (mineChance * 0.01);
+  acessSurroundingCells(
+    cells,
+    startingCell,
+    (cell: CellData) => {
+      delete potentialMines[`${cell.position.x},${cell.position.y}`];
+    },
+    true,
+  );
+  Object.keys(getNRandomEntries(potentialMines, totalMines)).map(
+    (cellPosition) => {
+      const [x, y] = cellPosition.split(`,`).map(Number);
+      placeMine(cells, cells[x][y]);
+    },
+  );
 }
 
 function placeMine(cells: CellData[][], cell: CellData) {
-  cell.isMine = true
+  cell.isMine = true;
   countSurroundingCells(cells, cell);
 }
 
@@ -100,6 +146,7 @@ function acessSurroundingCells(
   startingCell: CellData,
   accessFunction: (cell: CellData) => void,
   shouldHitStarting: boolean = false,
+  orthogonal: boolean = false,
 ) {
   for (let x = -1; x <= 1; x++) {
     let newCellX = startingCell.position.x + x;
@@ -109,11 +156,17 @@ function acessSurroundingCells(
     let column = cells[newCellX];
     for (let y = -1; y <= 1; y++) {
       let newCellY = startingCell.position.y + y;
-      if (newCellY < 0 || newCellY >= column.length) {
+      if (
+        newCellY < 0 ||
+        newCellY >= column.length ||
+        (orthogonal && y !== 0 && x !== 0)
+      ) {
         continue;
       }
       let newCell = column[newCellY];
-      if (newCell === startingCell && !shouldHitStarting) { continue; }
+      if (newCell === startingCell && !shouldHitStarting) {
+        continue;
+      }
       accessFunction(newCell);
     }
   }

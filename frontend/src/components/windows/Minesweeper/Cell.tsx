@@ -34,7 +34,7 @@ const Cell = ({ cell, onLeftClick, onRightClick }: CellProps) => {
         onRightClick(cell);
       }}
     >
-      <div className="cell">
+      <div className={`cell cell_${cell.endState}`}>
         {cell.state !== `opened` && (
           <img src={unopenedImg} alt="Background" className="cell-background" />
         )}

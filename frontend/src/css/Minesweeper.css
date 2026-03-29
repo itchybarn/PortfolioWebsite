@@ -34,3 +34,11 @@
     width: 100%;
     height: 100%;
 }
+
+.cell_won {
+    background-color: goldenrod;
+}
+
+.cell_lost {
+    background-color: red;
+}
