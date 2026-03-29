@@ -82,10 +82,22 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
     case "set_end_state": {
       const newCells = deepCopyCells(state.cells);
       const cell = newCells[x][y];
-      if (cell.isMine) {
-        cell.endState = a.endState;
-        cell.state = `opened`;
+
+      switch (a.endState) {
+        case "lost": {
+          if (cell.isMine) {
+            cell.endState = a.endState;
+            cell.state = `opened`;
+          }
+          break;
+        }
+        case "won": {
+          cell.endState = a.endState;
+          cell.state = `opened`;
+          break;
+        }
       }
+
       return { ...state, cells: newCells };
     }
   }
