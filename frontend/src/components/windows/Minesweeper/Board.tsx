@@ -20,28 +20,42 @@ const GameBoard = ({
 
   const triggerEndingAnimation = (startCell: CellData, endState: EndState) => {
     const visited = new Set<string>();
-    let currentLayer = [startCell]
+    let currentLayer = [startCell];
     let delay = 0;
 
     while (currentLayer.length > 0) {
-      const nextLayer: CellData[] = []
+      const nextLayer: CellData[] = [];
 
       for (const cell of currentLayer) {
-        const key = `${cell.position.x},${cell.position.y}`
+        const key = `${cell.position.x},${cell.position.y}`;
         if (visited.has(key)) continue;
-        visited.add(key)
+        visited.add(key);
 
         setTimeout(() => {
-          dispatch({ type: "set_end_state", position: cell.position, endState: endState})
+          dispatch({
+            type: "set_end_state",
+            position: cell.position,
+            endState: endState,
+          });
         }, delay);
         //delay += 3;
 
-        for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+        for (const [dx, dy] of [
+          [0, 1],
+          [0, -1],
+          [1, 0],
+          [-1, 0],
+        ]) {
           const newX = cell.position.x + dx;
           const newY = cell.position.y + dy;
-          if (newX >= 0 && newX < board.cells.length && newY >= 0 && newY < board.cells[0].length) {
+          if (
+            newX >= 0 &&
+            newX < board.cells.length &&
+            newY >= 0 &&
+            newY < board.cells[0].length
+          ) {
             if (!visited.has(`${newX},${newY}`)) {
-              nextLayer.push(board.cells[newX][newY])
+              nextLayer.push(board.cells[newX][newY]);
             }
           }
         }
@@ -52,10 +66,13 @@ const GameBoard = ({
   };
 
   useEffect(() => {
-    if (board.mineHit) {
-      triggerEndingAnimation(board.cells[board.mineHit.x][board.mineHit.y], `lost`)
+    if (board.endState) {
+      triggerEndingAnimation(
+        board.cells[board.endState.finalCell.x][board.endState.finalCell.y],
+        board.endState.endState,
+      );
     }
-  }, [board.mineHit])
+  }, [board.endState]);
 
   return (
     <div className="game-board">
@@ -67,8 +84,12 @@ const GameBoard = ({
                 <Cell
                   key={`${cell.position.x},${cell.position.y}`}
                   cell={cell}
-                  onLeftClick={(cell: CellData) => dispatch({ type: "reveal_cell", position: cell.position})}
-                  onRightClick={(cell: CellData) => dispatch({ type: "flag_cell", position: cell.position})}
+                  onLeftClick={(cell: CellData) =>
+                    dispatch({ type: "reveal_cell", position: cell.position })
+                  }
+                  onRightClick={(cell: CellData) =>
+                    dispatch({ type: "flag_cell", position: cell.position })
+                  }
                 />
               );
             })}

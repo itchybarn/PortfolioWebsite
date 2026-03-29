@@ -6,13 +6,16 @@ export interface BoardState {
   gameStarted: boolean;
   mineChance: number;
   potentialMines: Record<string, boolean>;
-  mineHit?: CellPosition;
+  endState?: {
+    finalCell: CellPosition;
+    endState: EndState;
+  };
 }
 
 export type BoardAction =
   | { type: "reveal_cell"; position: CellPosition }
   | { type: "flag_cell"; position: CellPosition }
-  | { type: "set_end_state"; position: CellPosition; endState: EndState }
+  | { type: "set_end_state"; position: CellPosition; endState: EndState };
 
 function deepCopyCells(cells: CellData[][]): CellData[][] {
   return cells.map((col) => col.map((c) => ({ ...c })));
@@ -31,7 +34,7 @@ export function createInitialBoard({
         count: 0,
         isMine: false,
         state: "unopened",
-        endState: `neutral`
+        endState: `neutral`,
       };
     }),
   );
@@ -44,6 +47,8 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 
   switch (a.type) {
     case "reveal_cell": {
+      if (state.endState) return { ...state }
+
       const newCells = deepCopyCells(state.cells);
       const cell = newCells[x][y];
 
@@ -51,13 +56,20 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
         placeMines(newCells, cell, state.potentialMines, state.mineChance);
       }
 
-      revealCell(newCells, cell, true);
+      state.endState = revealCell(newCells, cell, true);
 
-      state.mineHit = cell.isMine ? cell.position : undefined
+      console.log(state.endState);
 
-      return { ...state, cells: newCells, gameStarted: true };
+      return {
+        ...state,
+        cells: newCells,
+        gameStarted: true,
+        endState: state.endState,
+      };
     }
     case "flag_cell": {
+      if (state.endState) return { ...state }
+      
       if (state.cells[x][y].state === "opened") return state;
 
       const newCells = deepCopyCells(state.cells);
@@ -65,16 +77,16 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 
       cell.state = cell.state === `flagged` ? `unopened` : `flagged`;
 
-      return { ...state, cells: newCells, mineHit: state.mineHit };
+      return { ...state, cells: newCells };
     }
     case "set_end_state": {
-      const newCells = deepCopyCells(state.cells)
-      const cell = newCells[x][y]
+      const newCells = deepCopyCells(state.cells);
+      const cell = newCells[x][y];
       if (cell.isMine) {
         cell.endState = a.endState;
-        cell.state = `opened`
+        cell.state = `opened`;
       }
-      return {...state, cells: newCells}
+      return { ...state, cells: newCells };
     }
   }
 }
@@ -83,27 +95,35 @@ function revealCell(
   cells: CellData[][],
   revealedCell: CellData,
   first: boolean = false,
-) {
-  if (revealedCell.state == "flagged") return
+): BoardState["endState"] {
+  if (revealedCell.state == "flagged") return;
+
+  const revealSurroundingCells = () => {
+    let result: BoardState["endState"];
+    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
+      result = revealCell(cells, cell) ?? result;
+    });
+    return result
+  }
 
   // for clicking already open tiles
   if (revealedCell.state === "opened") {
     if (first) {
-      acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
-        revealCell(cells, cell);
-      });
+      return revealSurroundingCells()
     }
-    return
+    return undefined;
   }
 
   revealedCell.state = "opened";
+  if (revealedCell.isMine)
+    return { finalCell: revealedCell.position, endState: `lost` };
 
   // for recursive zero tiles
   if (revealedCell.count == 0 && !revealedCell.isMine) {
-    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
-      revealCell(cells, cell);
-    });
+    return revealSurroundingCells()
   }
+
+  return undefined
 }
 
 function placeMines(
