@@ -1,7 +1,7 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import Cell from "./Cell";
 import { boardReducer, createInitialBoard } from "./BoardData";
-import type { CellData } from "./CellData";
+import type { CellData, EndState } from "./CellData";
 
 interface GameBoardProps {
   size?: { x: number; y: number };
@@ -17,6 +17,45 @@ const GameBoard = ({
     { size, mineChance },
     createInitialBoard,
   );
+
+  const triggerEndingAnimation = (startCell: CellData, endState: EndState) => {
+    const visited = new Set<string>();
+    let currentLayer = [startCell]
+    let delay = 0;
+
+    while (currentLayer.length > 0) {
+      const nextLayer: CellData[] = []
+
+      for (const cell of currentLayer) {
+        const key = `${cell.position.x},${cell.position.y}`
+        if (visited.has(key)) continue;
+        visited.add(key)
+
+        setTimeout(() => {
+          dispatch({ type: "set_end_state", position: cell.position, endState: endState})
+        }, delay);
+        //delay += 3;
+
+        for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+          const newX = cell.position.x + dx;
+          const newY = cell.position.y + dy;
+          if (newX >= 0 && newX < board.cells.length && newY >= 0 && newY < board.cells[0].length) {
+            if (!visited.has(`${newX},${newY}`)) {
+              nextLayer.push(board.cells[newX][newY])
+            }
+          }
+        }
+      }
+
+      currentLayer = nextLayer;
+    }
+  };
+
+  useEffect(() => {
+    if (board.mineHit) {
+      triggerEndingAnimation(board.cells[board.mineHit.x][board.mineHit.y], `lost`)
+    }
+  }, [board.mineHit])
 
   return (
     <div className="game-board">

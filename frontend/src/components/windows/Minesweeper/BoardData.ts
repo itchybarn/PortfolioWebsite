@@ -6,11 +6,13 @@ export interface BoardState {
   gameStarted: boolean;
   mineChance: number;
   potentialMines: Record<string, boolean>;
+  mineHit?: CellPosition;
 }
 
 export type BoardAction =
   | { type: "reveal_cell"; position: CellPosition }
-  | { type: "flag_cell"; position: CellPosition };
+  | { type: "flag_cell"; position: CellPosition }
+  | { type: "set_end_state"; position: CellPosition; endState: EndState }
 
 function deepCopyCells(cells: CellData[][]): CellData[][] {
   return cells.map((col) => col.map((c) => ({ ...c })));
@@ -33,6 +35,7 @@ export function createInitialBoard({
       };
     }),
   );
+
   return { cells, gameStarted: false, mineChance, potentialMines };
 }
 
@@ -50,6 +53,8 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 
       revealCell(newCells, cell, true);
 
+      state.mineHit = cell.isMine ? cell.position : undefined
+
       return { ...state, cells: newCells, gameStarted: true };
     }
     case "flag_cell": {
@@ -60,7 +65,16 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 
       cell.state = cell.state === `flagged` ? `unopened` : `flagged`;
 
-      return { ...state, cells: newCells };
+      return { ...state, cells: newCells, mineHit: state.mineHit };
+    }
+    case "set_end_state": {
+      const newCells = deepCopyCells(state.cells)
+      const cell = newCells[x][y]
+      if (cell.isMine) {
+        cell.endState = a.endState;
+        cell.state = `opened`
+      }
+      return {...state, cells: newCells}
     }
   }
 }
@@ -68,48 +82,28 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
 function revealCell(
   cells: CellData[][],
   revealedCell: CellData,
-  first: Boolean = false,
+  first: boolean = false,
 ) {
-  if (revealedCell.state !== "unopened") {
-    if (revealedCell.state === "flagged" || !first) return;
-    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
-      revealCell(cells, cell);
-    });
+  if (revealedCell.state == "flagged") return
+
+  // for clicking already open tiles
+  if (revealedCell.state === "opened") {
+    if (first) {
+      acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
+        revealCell(cells, cell);
+      });
+    }
+    return
   }
+
   revealedCell.state = "opened";
 
+  // for recursive zero tiles
   if (revealedCell.count == 0 && !revealedCell.isMine) {
     acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
       revealCell(cells, cell);
     });
   }
-
-  if (revealedCell.isMine) {
-    endGame(cells, revealedCell, `lost`, (newCell: CellData) => {
-      newCell.state = `opened`
-    })
-  }
-}
-
-function endGame(cells: CellData[][], finalCell: CellData, endState: EndState, effect: (newCell: CellData) => void, delay: number = 100) {
-  const endEffect = (cell: CellData) => {
-    console.log(`IM RUNNING!!! ${cell.position.x} ${cell.position.y}`)
-    if (cell.endState !== `neutral`) return;
-    cell.endState = endState;
-    setTimeout(() => {
-      acessSurroundingCells(
-        cells,
-        cell,
-        (newCell: CellData) => {
-          effect(newCell)
-          endEffect(newCell);
-        },
-        false,
-        true,
-      );
-    }, delay);
-  };
-  endEffect(finalCell);
 }
 
 function placeMines(
