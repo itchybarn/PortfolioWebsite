@@ -38,7 +38,19 @@ const GameBoard = ({
             endState: endState,
           });
         }, delay);
-        //delay += 3;
+        
+        switch (endState) {
+          case "won": {
+            delay += 5;
+            break;
+          }
+          case "lost": {
+            if (cell.isMine) {
+              delay += 25;
+            }
+            break;
+          }
+        }
 
         for (const [dx, dy] of [
           [0, 1],

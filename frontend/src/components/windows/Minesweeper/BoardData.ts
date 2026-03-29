@@ -6,10 +6,13 @@ export interface BoardState {
   gameStarted: boolean;
   mineChance: number;
   potentialMines: Record<string, boolean>;
-  endState?: {
-    finalCell: CellPosition;
-    endState: EndState;
-  };
+  endState?: BoardEndState;
+  cellsLeftToReveal: number
+}
+
+interface BoardEndState {
+  finalCell: CellPosition;
+  endState: EndState;
 }
 
 export type BoardAction =
@@ -25,10 +28,12 @@ export function createInitialBoard({
   size = { x: 10, y: 10 },
   mineChance = 15,
 }): BoardState {
+  let cellsLeftToReveal = 0;
   const potentialMines: Record<string, boolean> = {};
   const cells = Array.from({ length: size.x }, (_, x) =>
     Array.from({ length: size.y }, (_, y): CellData => {
       potentialMines[`${x},${y}`] = true;
+      cellsLeftToReveal += 1;
       return {
         position: { x, y },
         count: 0,
@@ -39,49 +44,56 @@ export function createInitialBoard({
     }),
   );
 
-  return { cells, gameStarted: false, mineChance, potentialMines };
+  return { cells, gameStarted: false, mineChance, potentialMines, cellsLeftToReveal };
 }
 
-export function boardReducer(state: BoardState, a: BoardAction): BoardState {
+export function boardReducer(prevState: BoardState, a: BoardAction): BoardState {
   const { x, y } = a.position;
+
+  const createNewState = (): [BoardState, CellData] => {
+    const state: BoardState = {
+      ...prevState,
+      cells: deepCopyCells(prevState.cells),
+    }
+    const cell = state.cells[x][y];
+
+    return [state, cell]
+  }
 
   switch (a.type) {
     case "reveal_cell": {
-      if (state.endState) return { ...state }
+      if (prevState.endState) return prevState;
 
-      const newCells = deepCopyCells(state.cells);
-      const cell = newCells[x][y];
+      const [state, cell] = createNewState();
 
       if (!state.gameStarted) {
-        placeMines(newCells, cell, state.potentialMines, state.mineChance);
+        placeMines(state, cell);
+      }
+      state.gameStarted = true;
+
+      revealCell(state, cell, true);
+
+      if (state.cellsLeftToReveal <= 0) {
+        state.endState = {
+          endState: `won`,
+          finalCell: cell.position,
+        }
       }
 
-      state.endState = revealCell(newCells, cell, true);
-
-      console.log(state.endState);
-
-      return {
-        ...state,
-        cells: newCells,
-        gameStarted: true,
-        endState: state.endState,
-      };
+      return state;
     }
     case "flag_cell": {
-      if (state.endState) return { ...state }
-      
-      if (state.cells[x][y].state === "opened") return state;
+      if (prevState.endState) return prevState
+      if (prevState.cells[x][y].state === "opened") return prevState;
 
-      const newCells = deepCopyCells(state.cells);
-      const cell = newCells[x][y];
+      const [state, cell] = createNewState();
 
       cell.state = cell.state === `flagged` ? `unopened` : `flagged`;
 
-      return { ...state, cells: newCells };
+      return state;
     }
     case "set_end_state": {
-      const newCells = deepCopyCells(state.cells);
-      const cell = newCells[x][y];
+      const [state, cell] = createNewState();
 
       switch (a.endState) {
         case "lost": {
@@ -92,83 +104,80 @@ export function boardReducer(state: BoardState, a: BoardAction): BoardState {
           break;
         }
         case "won": {
-          cell.endState = a.endState;
-          cell.state = `opened`;
+          if (!cell.isMine) {
+            cell.endState = a.endState;
+          }
           break;
         }
       }
 
-      return { ...state, cells: newCells };
+      return state;
     }
   }
 }
 
 function revealCell(
-  cells: CellData[][],
+  state: BoardState,
   revealedCell: CellData,
   first: boolean = false,
-): BoardState["endState"] {
+) {
   if (revealedCell.state == "flagged") return;
 
   const revealSurroundingCells = () => {
-    let result: BoardState["endState"];
-    acessSurroundingCells(cells, revealedCell, (cell: CellData) => {
-      result = revealCell(cells, cell) ?? result;
+    acessSurroundingCells(state, revealedCell, (cell: CellData) => {
+      revealCell(state, cell)
     });
-    return result
   }
 
   // for clicking already open tiles
   if (revealedCell.state === "opened") {
     if (first) {
-      return revealSurroundingCells()
+      revealSurroundingCells();
     }
-    return undefined;
+    return;
   }
 
   revealedCell.state = "opened";
+  state.cellsLeftToReveal--;
   if (revealedCell.isMine)
-    return { finalCell: revealedCell.position, endState: `lost` };
+    state.endState = { finalCell: revealedCell.position, endState: `lost` };
 
   // for recursive zero tiles
   if (revealedCell.count == 0 && !revealedCell.isMine) {
-    return revealSurroundingCells()
+    revealSurroundingCells();
   }
-
-  return undefined
 }
 
 function placeMines(
-  cells: CellData[][],
+  state: BoardState,
   startingCell: CellData,
-  potentialMines: Record<string, boolean>,
-  mineChance: number,
 ) {
-  const totalSize = cells.length * cells[0].length;
-  const totalMines = totalSize * (mineChance * 0.01);
+  const totalSize = state.cells.length * state.cells[0].length;
+  const totalMines = totalSize * (state.mineChance * 0.01);
   acessSurroundingCells(
-    cells,
+    state,
     startingCell,
     (cell: CellData) => {
-      delete potentialMines[`${cell.position.x},${cell.position.y}`];
+      delete state.potentialMines[`${cell.position.x},${cell.position.y}`];
     },
     true,
   );
-  Object.keys(getNRandomEntries(potentialMines, totalMines)).map(
+  Object.keys(getNRandomEntries(state.potentialMines, totalMines)).map(
     (cellPosition) => {
       const [x, y] = cellPosition.split(`,`).map(Number);
-      placeMine(cells, cells[x][y]);
+      state.cellsLeftToReveal--;
+      placeMine(state, state.cells[x][y]);
     },
   );
 }
 
-function placeMine(cells: CellData[][], cell: CellData) {
+function placeMine(state: BoardState, cell: CellData) {
   cell.isMine = true;
-  countSurroundingCells(cells, cell);
+  countSurroundingCells(state, cell);
 }
 
 function acessSurroundingCells(
-  cells: CellData[][],
+  state: BoardState,
   startingCell: CellData,
   accessFunction: (cell: CellData) => void,
   shouldHitStarting: boolean = false,
@@ -176,10 +185,10 @@ function acessSurroundingCells(
 ) {
   for (let x = -1; x <= 1; x++) {
     let newCellX = startingCell.position.x + x;
-    if (newCellX < 0 || newCellX >= cells.length) {
+    if (newCellX < 0 || newCellX >= state.cells.length) {
       continue;
     }
-    let column = cells[newCellX];
+    let column = state.cells[newCellX];
     for (let y = -1; y <= 1; y++) {
       let newCellY = startingCell.position.y + y;
       if (
@@ -198,8 +207,8 @@ function acessSurroundingCells(
   }
 }
 
-function countSurroundingCells(cells: CellData[][], cell: CellData) {
-  acessSurroundingCells(cells, cell, (countingCell: CellData) => {
+function countSurroundingCells(state: BoardState, cell: CellData) {
+  acessSurroundingCells(state, cell, (countingCell: CellData) => {
     countingCell.count += 1;
   });
 }

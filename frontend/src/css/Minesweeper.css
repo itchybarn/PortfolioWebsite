@@ -36,9 +36,13 @@
 }
 
 .cell_won {
+    background-color: gold;
+}
+
+.cell_won.cell_0 {
     background-color: goldenrod;
 }
 
 .cell_lost {
-    background-color: red;
+    background-color: rgb(182, 0, 0);
 }
