@@ -1,4 +1,23 @@
+.minesweeper {
+  background-color: rgb(162, 162, 162);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.new-game-button {
+  width: 4rem;
+  height: 4rem;
+  padding: 0;
+  border: none;
+  position: relative; /* becomes the reference for any absolute children */
+  cursor: pointer;
+}
+
 .game-board {
+  border: 2px solid gray;
   display: flex;
   flex-direction: row;
   width: fit-content;
@@ -26,7 +45,7 @@
   height: 100%;
 }
 
-.cell img {
+.cell-background {
   aspect-ratio: 1 / 1;
   width: 100%;
   height: 100%;

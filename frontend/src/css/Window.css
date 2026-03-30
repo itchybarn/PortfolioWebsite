@@ -1,0 +1,6 @@
+.title-bar {
+    background-color: rgb(25, 25, 25);
+    color: white;
+    display: flex;
+    padding: 5px;
+}

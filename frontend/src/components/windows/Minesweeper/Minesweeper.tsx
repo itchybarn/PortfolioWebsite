@@ -1,5 +1,6 @@
-import GameBoard from "./Board";
+import Board from "./Board";
 import "@src/css/windows/MinesweeperGame.css";
+import NewGameButton from "./NewGameButton";
 
 interface Props {
   className: string;
@@ -8,7 +9,8 @@ interface Props {
 const Minesweeper = ({ className }: Props) => {
   return (
     <div className={className}>
-      <GameBoard />
+      <NewGameButton />
+      <Board />
     </div>
   );
 };
