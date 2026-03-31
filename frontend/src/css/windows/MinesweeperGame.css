@@ -29,17 +29,19 @@
   border: 2px solid gray;
   display: flex;
   flex-direction: row;
-  width: fit-content;
+  width: 100%;
 }
 
 .cell-column {
   display: flex;
   flex-direction: column;
+  flex: 1; /* each column takes equal space */
 }
 
 .cell {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 100%;
+  aspect-ratio: 1;
+  height: auto;
   padding: 0;
   border: 1px solid gray;
   box-sizing: border-box;

@@ -8,7 +8,7 @@ interface WindowProps {
 
 const Window = ({ name, children }: WindowProps) => {
   return (
-    <div>
+    <div className="window">
       <div className="title-bar">{name}</div>
       <div>{children}</div>
     </div>
