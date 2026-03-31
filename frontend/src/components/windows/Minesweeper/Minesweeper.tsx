@@ -2,6 +2,7 @@ import Board from "./Board";
 import "@src/css/windows/MinesweeperGame.css";
 import NewGameButton from "./NewGameButton";
 import { useRef, useState } from "react";
+import SliderBlock from "./SliderBlock";
 
 interface Props {
   className: string;
@@ -23,25 +24,27 @@ const Minesweeper = ({ className }: Props) => {
   return (
     <div className={className}>
       <div className="option-header">
-        <input
-          type="range"
-          min={MIN_BOARD_SIZE}
-          max={MAX_BOARD_SIZE}
-          value={boardSize}
-          onChange={(e) => setBoardSize(Number(e.target.value))}
-          step={1}
-        />
-        <NewGameButton onNewGame={() => setGameId(id => id + 1)}/>
-        <input
-          type="range"
+        <SliderBlock
+          title={`Mine Chance`}
           min={MIN_MINE_CHANCE}
           max={MAX_MINE_CHANCE}
-          value={mineChance}
-          onChange={(e) => setMineChance(Number(e.target.value))}
-          step={1}
+          originalValue={mineChance}
+          onChange={(value) => setMineChance(value)}
+        />
+        <NewGameButton onNewGame={() => setGameId((id) => id + 1)} />
+        <SliderBlock
+          title={`Board Size`}
+          min={MIN_BOARD_SIZE}
+          max={MAX_BOARD_SIZE}
+          originalValue={boardSize}
+          onChange={(value) => setBoardSize(value)}
         />
       </div>
-      <Board key={gameId} size={{ x: boardSize, y: boardSize }} mineChance={mineChance} />
+      <Board
+        key={gameId}
+        size={{ x: boardSize, y: boardSize }}
+        mineChance={mineChance}
+      />
     </div>
   );
 };

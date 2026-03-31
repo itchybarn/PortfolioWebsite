@@ -7,7 +7,16 @@
   gap: 1rem;
 }
 
+.option-header {
+  width: 95%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
 .new-game-button {
+  flex-shrink: 0;
   width: 4rem;
   height: 4rem;
   padding: 0;
