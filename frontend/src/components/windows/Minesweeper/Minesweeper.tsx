@@ -1,7 +1,7 @@
 import Board from "./Board";
 import "@src/css/windows/MinesweeperGame.css";
 import NewGameButton from "./NewGameButton";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import SliderBlock from "./SliderBlock";
 
 interface Props {
