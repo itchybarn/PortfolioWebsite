@@ -6,7 +6,7 @@ import "@src/css/pages/Page.css";
 const MinesweeperPage = () => {
   return (
     <div className="page minesweeperPage">
-      <Window name="Minesweeper">
+      <Window name="Minesweeper" height="50%">
         <Minesweeper className="minesweeper" />
       </Window>
     </div>
