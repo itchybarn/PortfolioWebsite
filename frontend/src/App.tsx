@@ -14,7 +14,7 @@ function App() {
         ySpeed={-40}
         color="rgb(44, 47, 94)"
       >
-        <Navbar links={pages} height="3rem" />
+        <Navbar links={pages} />
         <div className="page-content">
           <Routes>
             {Object.entries(pages).map(([link, info]) => {

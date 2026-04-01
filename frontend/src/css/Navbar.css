@@ -2,7 +2,6 @@
     width: 100%;
     background-color: rgb(25, 27, 54);
     box-shadow: 0 3px 4px rgba(0, 0, 0, 0.2);
-    height: var(--navbar-height);
 }
 
 .navbar-inner {

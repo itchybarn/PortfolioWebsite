@@ -5,6 +5,8 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  min-height: 0;
 }
 
 .option-header {
@@ -29,7 +31,11 @@
   border: 2px solid gray;
   display: flex;
   flex-direction: row;
-  width: 100%;
+  aspect-ratio: 1;
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  height: 100%;
 }
 
 .cell-column {
